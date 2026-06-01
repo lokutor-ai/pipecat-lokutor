@@ -54,16 +54,24 @@ from pipecat.services.groq.llm import GroqLLMService
 from pipecat_lokutor import LokutorTTSService
 from pipecat.transcriptions.language import Language
 from pipecat.transports.base_transport import BaseTransport, TransportParams
-from pipecat.transports.daily.transport import DailyParams
-from pipecat.transports.websocket.fastapi import FastAPIWebsocketParams
 
 load_dotenv(override=True)
 
 transport_params = {
-    "daily": lambda: DailyParams(audio_in_enabled=True, audio_out_enabled=True),
-    "twilio": lambda: FastAPIWebsocketParams(audio_in_enabled=True, audio_out_enabled=True),
     "webrtc": lambda: TransportParams(audio_in_enabled=True, audio_out_enabled=True),
 }
+
+try:
+    from pipecat.transports.daily.transport import DailyParams
+    transport_params["daily"] = lambda: DailyParams(audio_in_enabled=True, audio_out_enabled=True)
+except ImportError:
+    pass
+
+try:
+    from pipecat.transports.websocket.fastapi import FastAPIWebsocketParams
+    transport_params["twilio"] = lambda: FastAPIWebsocketParams(audio_in_enabled=True, audio_out_enabled=True)
+except ImportError:
+    pass
 
 
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
