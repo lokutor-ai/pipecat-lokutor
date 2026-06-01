@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3 (2026-06-01)
+
+- Fixed PyPI dependency name: `pipecat` -> `pipecat-ai`
+- Fixed wheel packaging (hatchling packages config)
+
 ## 0.1.1 (2026-06-01)
 
 - Fixed PyPI dependency name: `pipecat` -> `pipecat-ai`

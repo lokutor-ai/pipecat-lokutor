@@ -1,6 +1,6 @@
 [project]
 name = "pipecat-lokutor"
-version = "0.1.1"
+version = "0.1.3"
 description = "Lokutor TTS integration for Pipecat"
 readme = "README.md"
 license = { text = "BSD-2-Clause" }
@@ -18,10 +18,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/pipecat_lokutor"]
 
 [tool.hatch.build.targets.sdist]
-packages = ["src/pipecat_lokutor"]
 
 [project.urls]
 Homepage = "https://github.com/lokutor-ai/pipecat-lokutor"
