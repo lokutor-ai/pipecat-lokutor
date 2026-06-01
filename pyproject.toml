@@ -9,7 +9,7 @@ authors = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "pipecat>=0.0.86",
+    "pipecat-ai>=0.0.86",
     "websockets>=12.0",
 ]
 
