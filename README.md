@@ -2,6 +2,10 @@
 
 Lokutor text-to-speech integration for [Pipecat](https://github.com/pipecat-ai/pipecat).
 
+**Get an API key and test voices at [app.lokutor.com](https://app.lokutor.com).**
+
+> Lokutor TTS runs entirely on **CPU-only infrastructure**, keeping costs low while delivering high-quality speech synthesis. No GPU markup — just affordable, scalable TTS.
+
 ## Installation
 
 ```bash
@@ -47,10 +51,7 @@ pipeline = Pipeline([
 
 ## Voices
 
-| Voice | Description |
-|-------|-------------|
-| M1-M5 | Male voices |
-| F1-F5 | Female voices |
+Browse and test available voices at [app.lokutor.com](https://app.lokutor.com).
 
 ## Supported Languages
 

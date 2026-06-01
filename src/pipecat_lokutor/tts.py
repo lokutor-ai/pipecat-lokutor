@@ -48,8 +48,6 @@ class LokutorTTSService(WebsocketTTSService):
         steps: Optional[int] = 5
         visemes: Optional[bool] = False
 
-    SUPPORTED_VOICES = {"M1", "M2", "M3", "M4", "M5", "F1", "F2", "F3", "F4", "F5"}
-
     def __init__(
         self,
         *,
@@ -61,8 +59,6 @@ class LokutorTTSService(WebsocketTTSService):
         base_url: str = "wss://api.lokutor.com/ws",
         **kwargs,
     ):
-        if voice_id not in self.SUPPORTED_VOICES:
-            raise ValueError(f"Invalid voice_id '{voice_id}'")
 
         self._api_key = api_key
         self._voice_id = voice_id
