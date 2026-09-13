@@ -56,7 +56,9 @@ Browse and test available voices at [app.lokutor.com](https://app.lokutor.com).
 
 ## Supported Languages
 
-EN, ES, FR, PT, KO
+32 languages: `en`, `es`, `fr`, `de`, `it`, `pt`, `ja`, `ko`, `zh`, `ar`, `bg`, `hr`, `cs`, `da`, `nl`, `et`, `fi`, `el`, `hi`, `hu`, `id`, `lv`, `lt`, `pl`, `ro`, `ru`, `sk`, `sl`, `sv`, `tr`, `uk`, `vi`.
+
+Pass any Pipecat `Language` (including regional variants like `Language.EN_US`) — it is normalized to the matching Lokutor base code automatically.
 
 ## Example
 

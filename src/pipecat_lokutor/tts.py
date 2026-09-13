@@ -174,7 +174,7 @@ class LokutorTTSService(WebsocketTTSService):
             if self._params.language:
                 lokutor_lang = language_to_lokutor_language(self._params.language)
                 if lokutor_lang:
-                    request["lang"] = lokutor_lang
+                    request["language"] = lokutor_lang
 
             request_json = json.dumps(request)
             logger.debug(f"Sending request to Lokutor: {request_json}")
@@ -192,11 +192,18 @@ class LokutorTTSService(WebsocketTTSService):
                         f"Received message from Lokutor: {type(message)} {len(message) if isinstance(message, bytes) else message[:100]}"
                     )
                     if isinstance(message, str):
+                        # The server signals end-of-stream with the literal
+                        # text "EOS" (not a JSON object) — matching it here is
+                        # what lets run_tts finish promptly instead of hanging
+                        # until the 10s recv timeout on every utterance.
+                        if message.strip() == "EOS":
+                            logger.debug("Received EOS from Lokutor")
+                            break
                         try:
                             data = json.loads(message)
                             if isinstance(data, dict):
                                 msg_type = data.get("type")
-                                if msg_type == "eos":
+                                if msg_type == "eos":  # tolerate a JSON eos form too
                                     logger.debug("Received EOS from Lokutor")
                                     break
                                 elif msg_type == "error":
@@ -204,10 +211,11 @@ class LokutorTTSService(WebsocketTTSService):
                                     logger.error(f"Lokutor error: {error_msg}")
                                     yield ErrorFrame(error=f"Lokutor error: {error_msg}")
                                     break
+                                # other dict messages (e.g. timing) are informational
                             elif isinstance(data, list):
                                 logger.debug(f"Received viseme data: {len(data)} visemes")
                         except json.JSONDecodeError:
-                            logger.warning(f"Received unknown text message: {message}")
+                            logger.debug(f"Ignoring non-JSON text message: {message[:100]}")
                     else:
                         logger.debug(f"Received audio data: {len(message)} bytes")
                         if not first_audio_received:
@@ -237,30 +245,43 @@ class LokutorTTSService(WebsocketTTSService):
             yield TTSStoppedFrame(context_id=context_id)
 
 
-def language_to_lokutor_language(language):
-    if isinstance(language, Language):
-        mapping = {
-            Language.EN: "en",
-            Language.ES: "es",
-            Language.FR: "fr",
-            Language.PT: "pt",
-            Language.KO: "ko",
-        }
-        return mapping.get(language)
-    if hasattr(language, "value"):
-        return language.value
-    return str(language)
+# Lokutor's 32 supported languages, as base ISO codes.
+# https://docs.lokutor.com/voices-languages-models#languages
+LOKUTOR_LANGUAGES = frozenset(
+    {
+        "en", "es", "fr", "de", "it", "pt", "ja", "ko", "zh", "ar",
+        "bg", "hr", "cs", "da", "nl", "et", "fi", "el", "hi", "hu",
+        "id", "lv", "lt", "pl", "ro", "ru", "sk", "sl", "sv", "tr",
+        "uk", "vi",
+    }
+)
 
 
-def lokutor_language_to_language(language):
+def language_to_lokutor_language(language) -> Optional[str]:
+    """Map a Pipecat ``Language`` (or raw code) to a Lokutor base code.
+
+    Pipecat exposes region variants such as ``Language.EN_US`` whose value is
+    ``"en-US"``; Lokutor keys on the base two-letter code, so we normalize the
+    value (``en-US`` -> ``en``) and only return it when Lokutor supports it.
+    This covers all 32 Lokutor languages plus every regional variant Pipecat
+    defines for them — no per-language table to keep in sync.
+    """
+    if language is None:
+        return None
+    code = language.value if hasattr(language, "value") else str(language)
+    base = code.replace("_", "-").split("-")[0].lower()
+    return base if base in LOKUTOR_LANGUAGES else None
+
+
+def lokutor_language_to_language(language) -> Optional[Language]:
+    """Map a Lokutor base code back to a Pipecat ``Language`` when one exists."""
     if not isinstance(language, str):
         return None
-
-    mapping = {
-        "en": Language.EN,
-        "es": Language.ES,
-        "fr": Language.FR,
-        "pt": Language.PT,
-        "ko": Language.KO,
-    }
-    return mapping.get(language)
+    base = language.replace("_", "-").split("-")[0].lower()
+    if base not in LOKUTOR_LANGUAGES:
+        return None
+    try:
+        return Language(base)
+    except ValueError:
+        # Pipecat's enum member name is the upper-cased code (e.g. Language.DE)
+        return getattr(Language, base.upper(), None)
