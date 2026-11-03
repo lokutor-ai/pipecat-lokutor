@@ -1,7 +1,7 @@
 [project]
 name = "pipecat-lokutor"
-version = "0.2.0"
-description = "Lokutor TTS integration for Pipecat"
+version = "0.3.0"
+description = "Lokutor TTS and STT integration for Pipecat"
 readme = "README.md"
 license = { text = "BSD-2-Clause" }
 authors = [
@@ -24,3 +24,7 @@ build-backend = "hatchling.build"
 [project.urls]
 Homepage = "https://github.com/lokutor-ai/pipecat-lokutor"
 Source = "https://github.com/lokutor-ai/pipecat-lokutor"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

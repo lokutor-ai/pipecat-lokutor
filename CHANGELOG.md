@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0 (2026-11-03)
+
+- Added `LokutorSTTService`: streaming speech-to-text over Lokutor's `/ws/stt`
+  WebSocket (nine languages, interim and final transcripts, custom vocabulary
+  via `keyterms`). Sends `end` when Pipecat's VAD reports the end of the
+  user's speech so the final transcript arrives promptly, then reopens the
+  session for the next utterance. Tested with Pipecat 1.12.
+- Added `pytest` configuration (`pythonpath = ["src"]`) and STT tests.
+- README: speech-to-text section and a note on the TTS expression tags
+  (`[laugh]`, `[sigh]`, `[breath]` and eight emotion tags).
+
 ## 0.2.0 (2026-09-13)
 
 - Fixed end-of-stream detection: the server signals the end of a synthesis
